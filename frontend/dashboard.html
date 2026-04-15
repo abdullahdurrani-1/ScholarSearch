@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ScholarSearch | Knowledge Copilot</title>
+  <style>
+    :root {
+      --bg: #f6f9ff;
+      --panel: #ffffff;
+      --panel-2: #edf2ff;
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #ea580c;
+      --accent-2: #fb923c;
+      --ok: #16a34a;
+      --warn: #f59e0b;
+      --danger: #dc2626;
+      --border: #e2e8f0;
+      --ring: rgba(234, 88, 12, 0.25);
+      --overlay: rgba(15, 23, 42, 0.55);
+    }
+
+    html[data-theme="dark"] {
+      --bg: #0b1220;
+      --panel: #111827;
+      --panel-2: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #f97316;
+      --accent-2: #fb923c;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --border: #334155;
+      --ring: rgba(249, 115, 22, 0.3);
+      --overlay: rgba(2, 6, 23, 0.72);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(1100px 540px at 8% -2%, rgba(251, 146, 60, 0.25) 0%, rgba(251, 146, 60, 0) 55%),
+        radial-gradient(920px 460px at 108% 24%, rgba(14, 116, 144, 0.26) 0%, rgba(14, 116, 144, 0) 58%),
+        var(--bg);
+    }
+
+    .hero {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: linear-gradient(135deg, #0b1220 0%, #1d3557 44%, #5f0f40 100%);
+      z-index: 20;
+      animation: fadeAway 1.2s ease 2.8s forwards;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, rgba(255, 255, 255, 0.08), transparent 42%);
+      transform: translateX(-100%);
+      animation: sweep 1.6s ease 0.4s;
+    }
+
+    .hero-card {
+      position: relative;
+      max-width: 680px;
+      width: 100%;
+      padding: 28px;
+      border-radius: 22px;
+      color: #f8fafc;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 20px 60px rgba(2, 6, 23, 0.45);
+      text-align: center;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      letter-spacing: 0.03em;
+    }
+
+    .hero p {
+      margin: 10px 0 0;
+      color: #dbeafe;
+      font-size: 1rem;
+    }
+
+    .app {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 16px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: appIn 0.6s ease 2.9s forwards;
+    }
+
+    .panel {
+      background: color-mix(in oklab, var(--panel) 92%, transparent);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(4px);
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .small-btn,
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    button {
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      color: #fff;
+    }
+
+    .small-btn {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    button:hover,
+    .small-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .status-row {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.94rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--warn);
+    }
+
+    .dot.ready { background: var(--ok); }
+    .dot.down { background: var(--danger); }
+
+    .grid {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .label {
+      margin: 14px 0 8px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .session-list {
+      max-height: 220px;
+      overflow: auto;
+      display: grid;
+      gap: 6px;
+    }
+
+    .session-item {
+      width: 100%;
+      text-align: left;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 9px 10px;
+      font-size: 0.86rem;
+      cursor: pointer;
+    }
+
+    .session-item.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .main-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hello {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tool {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.8rem;
+    }
+
+    textarea {
+      margin-top: 12px;
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .chat-log {
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+      max-height: 400px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .msg {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 10px;
+      background: var(--panel);
+      line-height: 1.5;
+      white-space: pre-wrap;
+      font-size: 0.94rem;
+    }
+
+    .msg.user {
+      border-color: color-mix(in oklab, var(--accent) 52%, var(--border));
+    }
+
+    .meta {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .chips {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 0.82rem;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      display: grid;
+      place-items: center;
+      z-index: 10;
+      padding: 16px;
+    }
+
+    .auth-card {
+      width: min(480px, 100%);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 18px;
+      box-shadow: 0 20px 60px rgba(2, 6, 23, 0.35);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      flex: 1;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .tab.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--ring);
+    }
+
+    .auth-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .google-note {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: var(--panel-2);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 8px;
+    }
+
+    @keyframes fadeAway {
+      0% { opacity: 1; visibility: visible; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+
+    @keyframes sweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    @keyframes appIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero" id="hero">
+    <div class="hero-card">
+      <h1>ScholarSearch</h1>
+      <p>Research-grade answers from your ML library, with verifiable grounding and saved conversation memory.</p>
+    </div>
+  </section>
+
+  <section class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <h3 style="margin:0 0 6px;">Welcome to ScholarSearch</h3>
+      <p class="muted" style="margin-top:0;">Sign in to keep your chat history synced across sessions.</p>
+      <div class="tabs">
+        <button class="tab active" id="tabLogin">Login</button>
+        <button class="tab" id="tabRegister">Register</button>
+      </div>
+      <div class="auth-grid" id="registerFields" style="display:none;">
+        <input id="regName" placeholder="Your name" />
+      </div>
+      <div class="auth-grid">
+        <input id="authEmail" type="email" placeholder="Email" />
+        <input id="authPassword" type="password" placeholder="Password (min 8 chars)" />
+      </div>
+      <div class="actions" style="margin-top:10px;">
+        <button id="authSubmit">Continue</button>
+      </div>
+      <div class="google-note">Google login can be added by wiring an OAuth callback endpoint and exchanging ID token server-side. Local account auth is active now.</div>
+      <p class="muted" id="authMsg"></p>
+    </div>
+  </section>
+
+  <div class="app">
+    <aside class="panel">
+      <div class="title-row">
+        <div>
+          <h2>ScholarSearch</h2>
+          <p class="sub">Grounded DS/ML copilot</p>
+        </div>
+        <button class="small-btn" id="themeBtn">Toggle Theme</button>
+      </div>
+
+      <div class="status-row">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">Checking API...</span>
+      </div>
+
+      <div class="grid">
+        <div>Chunks loaded: <strong id="chunksLoaded">-</strong></div>
+        <div>Total queries: <strong id="totalQueries">-</strong></div>
+        <div>Avg latency: <strong id="avgLatency">-</strong></div>
+        <div>Avg rating: <strong id="avgRating">-</strong></div>
+      </div>
+
+      <div class="label">Saved Sessions</div>
+      <div id="sessionList" class="session-list"></div>
+      <div class="actions">
+        <button class="small-btn" id="newChatBtn">New Chat</button>
+        <button class="small-btn" id="logoutBtn">Logout</button>
+      </div>
+    </aside>
+
+    <main class="panel">
+      <div class="main-top">
+        <div>
+          <div class="hello" id="helloText">Hello!</div>
+          <div class="muted">Ask questions based on your indexed books only.</div>
+        </div>
+        <div class="tools">
+          <span class="tool">RAG Search</span>
+          <span class="tool">Citations</span>
+          <span class="tool">Session Memory</span>
+          <span class="tool">Feedback Loop</span>
+        </div>
+      </div>
+
+      <textarea id="questionInput" placeholder="Ask about optimization, transformers, RL, metrics, or deployment patterns..."></textarea>
+      <div class="actions">
+        <button id="askBtn">Ask ScholarSearch</button>
+        <button class="small-btn" id="clearBtn">Clear Draft</button>
+        <span class="muted" id="loadingText"></span>
+      </div>
+
+      <div class="chat-log" id="chatLog"></div>
+      <div class="label">Follow-up Suggestions</div>
+      <div class="chips" id="followUps"></div>
+    </main>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    const STORAGE_KEY = "scholarsearch_auth";
+    const THEME_KEY = "scholarsearch_theme";
+
+    const state = {
+      token: null,
+      user: null,
+      sessionId: null,
+      sessions: [],
+      mode: "login"
+    };
+
+    const authOverlay = document.getElementById("authOverlay");
+    const authMsg = document.getElementById("authMsg");
+    const tabLogin = document.getElementById("tabLogin");
+    const tabRegister = document.getElementById("tabRegister");
+    const registerFields = document.getElementById("registerFields");
+    const authSubmit = document.getElementById("authSubmit");
+    const regName = document.getElementById("regName");
+    const authEmail = document.getElementById("authEmail");
+    const authPassword = document.getElementById("authPassword");
+
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const chunksLoaded = document.getElementById("chunksLoaded");
+    const totalQueries = document.getElementById("totalQueries");
+    const avgLatency = document.getElementById("avgLatency");
+    const avgRating = document.getElementById("avgRating");
+    const sessionList = document.getElementById("sessionList");
+    const newChatBtn = document.getElementById("newChatBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const helloText = document.getElementById("helloText");
+    const questionInput = document.getElementById("questionInput");
+    const askBtn = document.getElementById("askBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const loadingText = document.getElementById("loadingText");
+    const chatLog = document.getElementById("chatLog");
+    const followUps = document.getElementById("followUps");
+    const themeBtn = document.getElementById("themeBtn");
+
+    function nowGreeting(name) {
+      const hour = new Date().getHours();
+      let prefix = "Hello";
+      if (hour < 12) prefix = "Good morning";
+      else if (hour < 18) prefix = "Good afternoon";
+      else prefix = "Good evening";
+      return `${prefix}, ${name || "Researcher"}.`;
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem(THEME_KEY, theme);
+    }
+
+    function bootstrapTheme() {
+      const saved = localStorage.getItem(THEME_KEY) || "light";
+      setTheme(saved);
+    }
+
+    async function fetchJson(path, options = {}) {
+      const headers = options.headers || {};
+      if (state.token) {
+        headers.Authorization = `Bearer ${state.token}`;
+      }
+      const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
+      if (!response.ok) {
+        let details = "Request failed";
+        try {
+          const err = await response.json();
+          details = err.detail || JSON.stringify(err);
+        } catch (e) {
+          details = await response.text();
+        }
+        throw new Error(`${response.status}: ${details}`);
+      }
+      return response.json();
+    }
+
+    function setAuthMode(mode) {
+      state.mode = mode;
+      const isRegister = mode === "register";
+      tabLogin.classList.toggle("active", !isRegister);
+      tabRegister.classList.toggle("active", isRegister);
+      registerFields.style.display = isRegister ? "grid" : "none";
+      authSubmit.textContent = isRegister ? "Create Account" : "Login";
+      authMsg.textContent = "";
+    }
+
+    function saveAuth() {
+      if (!state.token || !state.user) return;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ token: state.token, user: state.user }));
+    }
+
+    function clearAuth() {
+      localStorage.removeItem(STORAGE_KEY);
+      state.token = null;
+      state.user = null;
+      state.sessionId = null;
+      state.sessions = [];
+      chatLog.innerHTML = "";
+      followUps.innerHTML = "";
+      renderSessions();
+      authOverlay.style.display = "grid";
+    }
+
+    async function registerAndLogin() {
+      const name = regName.value.trim();
+      const email = authEmail.value.trim();
+      const password = authPassword.value.trim();
+      if (!name || !email || password.length < 8) {
+        authMsg.textContent = "Please provide valid name/email and an 8+ character password.";
+        return;
+      }
+      await fetchJson("/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password })
+      });
+      await login(email, password);
+    }
+
+    async function login(emailInput, passwordInput) {
+      const email = emailInput || authEmail.value.trim();
+      const password = passwordInput || authPassword.value.trim();
+      if (!email || password.length < 8) {
+        authMsg.textContent = "Enter your email and password.";
+        return;
+      }
+      const result = await fetchJson("/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      state.token = result.token;
+      state.user = result.user;
+      saveAuth();
+      authOverlay.style.display = "none";
+      helloText.textContent = nowGreeting(state.user.name);
+      await refreshSessions();
+    }
+
+    function renderSessions() {
+      sessionList.innerHTML = "";
+      if (!state.sessions.length) {
+        const note = document.createElement("div");
+        note.className = "muted";
+        note.textContent = "No saved sessions yet.";
+        sessionList.appendChild(note);
+        return;
+      }
+
+      state.sessions.forEach((s) => {
+        const item = document.createElement("button");
+        item.className = `session-item ${state.sessionId === s.id ? "active" : ""}`;
+        item.textContent = s.title;
+        item.onclick = async () => {
+          state.sessionId = s.id;
+          renderSessions();
+          await loadMessages(s.id);
+        };
+        sessionList.appendChild(item);
+      });
+    }
+
+    function appendMessage(role, text, metadata = {}) {
+      const bubble = document.createElement("div");
+      bubble.className = `msg ${role}`;
+      bubble.textContent = text;
+
+      if (role === "assistant") {
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        const conf = metadata.confidence || "medium";
+        const chunks = metadata.chunks_used ?? metadata.chunksUsed ?? "-";
+        meta.textContent = `confidence: ${conf} | chunks used: ${chunks}`;
+        bubble.appendChild(meta);
+
+        if (Array.isArray(metadata.citations) && metadata.citations.length) {
+          metadata.citations.slice(0, 3).forEach((c, idx) => {
+            const cite = document.createElement("div");
+            cite.className = "meta";
+            cite.textContent = `${idx + 1}. ${c.book || "Unknown"} p.${c.page || "?"}`;
+            bubble.appendChild(cite);
+          });
+        }
+      }
+
+      chatLog.appendChild(bubble);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    async function loadMessages(sessionId) {
+      const result = await fetchJson(`/chat/session/${sessionId}`);
+      chatLog.innerHTML = "";
+      followUps.innerHTML = "";
+      (result.messages || []).forEach((m) => {
+        appendMessage(m.role, m.content, m.metadata || {});
+      });
+    }
+
+    async function refreshSessions() {
+      if (!state.token) return;
+      const result = await fetchJson("/chat/sessions");
+      state.sessions = result.sessions || [];
+      if (!state.sessionId && state.sessions.length) {
+        state.sessionId = state.sessions[0].id;
+        await loadMessages(state.sessionId);
+      }
+      renderSessions();
+    }
+
+    function renderFollowups(items) {
+      followUps.innerHTML = "";
+      (items || []).forEach((q) => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = q;
+        chip.onclick = () => { questionInput.value = q; };
+        followUps.appendChild(chip);
+      });
+    }
+
+    async function refreshHealthAndStats() {
+      try {
+        const health = await fetchJson("/health");
+        const stats = await fetchJson("/stats");
+        statusDot.className = `dot ${health.index_ready ? "ready" : "down"}`;
+        statusText.textContent = health.index_ready ? "API ready" : "API not ready";
+        chunksLoaded.textContent = health.chunks_loaded ?? "-";
+        totalQueries.textContent = stats.total_queries ?? "-";
+        avgLatency.textContent = `${stats.avg_latency ?? 0}s`;
+        avgRating.textContent = stats.avg_rating ?? "-";
+      } catch (error) {
+        statusDot.className = "dot down";
+        statusText.textContent = "API unavailable";
+      }
+    }
+
+    askBtn.onclick = async () => {
+      if (!state.token) {
+        authOverlay.style.display = "grid";
+        authMsg.textContent = "Please login first.";
+        return;
+      }
+
+      const question = questionInput.value.trim();
+      if (question.length < 10) {
+        alert("Please enter at least 10 characters.");
+        return;
+      }
+
+      askBtn.disabled = true;
+      loadingText.textContent = "Running hybrid retrieval and generation...";
+      try {
+        appendMessage("user", question);
+        const result = await fetchJson("/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question, top_k: 5, session_id: state.sessionId })
+        });
+
+        state.sessionId = result.session_id || state.sessionId;
+        appendMessage("assistant", result.answer || "No answer returned.", {
+          confidence: result.confidence,
+          chunks_used: result.chunks_used,
+          citations: result.citations || []
+        });
+        renderFollowups(result.follow_up_questions || []);
+        questionInput.value = "";
+        await refreshSessions();
+        await refreshHealthAndStats();
+      } catch (error) {
+        appendMessage("assistant", `Request failed: ${error.message}`);
+      } finally {
+        askBtn.disabled = false;
+        loadingText.textContent = "";
+      }
+    };
+
+    clearBtn.onclick = () => {
+      questionInput.value = "";
+    };
+
+    newChatBtn.onclick = () => {
+      state.sessionId = null;
+      chatLog.innerHTML = "";
+      followUps.innerHTML = "";
+      renderSessions();
+    };
+
+    logoutBtn.onclick = () => {
+      clearAuth();
+      setAuthMode("login");
+    };
+
+    tabLogin.onclick = () => setAuthMode("login");
+    tabRegister.onclick = () => setAuthMode("register");
+
+    authSubmit.onclick = async () => {
+      authSubmit.disabled = true;
+      authMsg.textContent = "Working...";
+      try {
+        if (state.mode === "register") {
+          await registerAndLogin();
+          authMsg.textContent = "Account ready.";
+        } else {
+          await login();
+          authMsg.textContent = "Logged in.";
+        }
+      } catch (error) {
+        authMsg.textContent = error.message;
+      } finally {
+        authSubmit.disabled = false;
+      }
+    };
+
+    themeBtn.onclick = () => {
+      const current = document.documentElement.getAttribute("data-theme") || "light";
+      setTheme(current === "light" ? "dark" : "light");
+    };
+
+    function restoreAuth() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        state.token = parsed.token;
+        state.user = parsed.user;
+        if (state.user) {
+          authOverlay.style.display = "none";
+          helloText.textContent = nowGreeting(state.user.name);
+        }
+      } catch (e) {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    bootstrapTheme();
+    setAuthMode("login");
+    restoreAuth();
+    refreshHealthAndStats();
+    if (state.token) refreshSessions();
+  </script>
+</body>
+</html>

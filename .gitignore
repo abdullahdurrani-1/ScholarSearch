@@ -1,0 +1,14 @@
+# Ignore local secrets file in production and developer environments.
+.env
+
+# Ignore Python bytecode/cache artifacts.
+__pycache__/
+
+# Ignore source PDF corpus to keep repository lightweight and compliant.
+*.pdf
+
+# Ignore persisted FAISS vector indexes generated at runtime.
+faiss_index/
+
+# Ignore local virtual environments.
+venv/

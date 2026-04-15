@@ -1,0 +1,13 @@
+pymupdf
+faiss-cpu
+rank-bm25
+google-generativeai
+fastapi
+uvicorn
+streamlit
+pandas
+numpy
+python-dotenv
+prometheus-client
+pytest
+httpx

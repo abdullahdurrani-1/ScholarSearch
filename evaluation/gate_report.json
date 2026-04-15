@@ -1,0 +1,178 @@
+{
+  "timestamp_utc": "2026-04-13T18:51:45.258772+00:00",
+  "thresholds": {
+    "min_recall_at_5": 0.7,
+    "min_mrr": 0.4,
+    "min_groundedness": 0.7,
+    "require_generation_gate": false
+  },
+  "checks": {
+    "retrieval_recall_at_5": true,
+    "retrieval_mrr": true,
+    "generation_groundedness_rate": true,
+    "generation_out_of_scope_guardrail": true
+  },
+  "retrieval": {
+    "queries": 4,
+    "recall_at_5": 1.0,
+    "mrr": 1.0
+  },
+  "generation": {
+    "questions": 3,
+    "groundedness_rate": 1.0,
+    "out_of_scope_guardrail_pass_rate": 1.0,
+    "sample_answers": [
+      {
+        "query": "What is gradient descent?",
+        "answer": "Gradient descent is an iterative optimization algorithm used to find the minimum of a function, and it is most commonly employed when the optimization criterion is differentiable (*2019BurkovTheHundred-pageMachineLearning.pdf*, p. 45). \n\nAs explained in *Deep Learning* (p. 99), the algorithm uses the derivatives of a function to follow the function \"downhill\" toward a minimum. To achieve this, a user starts at a random point and takes steps proportional to the negative of the gradient, or the approximate gradient (*2019BurkovTheHundred-pageMachineLearning.pdf*, p. 45). \n\nWhile the algorithm was once considered slow or unreliable for certain complex problems, it is now known to work very well for training machine learning models (*Deep Learning*, p. 169). Even if it is not guaranteed to reach a local minimum in a specific amount of time, it often finds a sufficiently low value of the cost function to be highly effective (*Deep Learning*, p. 169).",
+        "citations": [
+          {
+            "book": "Deep Learning",
+            "page": 99,
+            "relevance": "high",
+            "chunk_id": "deep_learning_ian_goodfellow_p99_c0"
+          },
+          {
+            "book": "2019BurkovTheHundred-pageMachineLearning.pdf",
+            "page": 140,
+            "relevance": "high",
+            "chunk_id": "2019burkovthehundred_pagemachinelearning_p140_c3"
+          },
+          {
+            "book": "deeplearningwithpython.pdf",
+            "page": 72,
+            "relevance": "medium",
+            "chunk_id": "deeplearningwithpython_p72_c3"
+          },
+          {
+            "book": "2019BurkovTheHundred-pageMachineLearning.pdf",
+            "page": 45,
+            "relevance": "medium",
+            "chunk_id": "2019burkovthehundred_pagemachinelearning_p45_c2"
+          },
+          {
+            "book": "Deep Learning",
+            "page": 169,
+            "relevance": "medium",
+            "chunk_id": "deep_learning_ian_goodfellow_p169_c0"
+          }
+        ],
+        "confidence": "medium",
+        "follow_up_questions": [
+          "Want a deeper mathematical view of this concept?",
+          "Should we connect this to a real model training example?",
+          "Do you want to compare this with a related method?"
+        ],
+        "chunks_used": 5,
+        "retrieval_scores": [
+          0.017336838849365915,
+          0.017336838849365915,
+          0.01707242848447961,
+          0.01707242848447961,
+          0.016816412099430966
+        ]
+      },
+      {
+        "query": "How does Adam differ from SGD?",
+        "answer": "Hello! As your ML tutor, I'd be happy to help you understand the differences between the Adam optimizer and standard Gradient Descent (SGD).\n\nBased on the provided texts, here are the primary ways Adam differs from Gradient Descent:\n\n*   **Adaptive Learning Rates:** Unlike standard Gradient Descent, Adam is an adaptive learning rate algorithm. This means it requires significantly less manual tuning of the learning rate hyperparameter, often working effectively with its default value of 0.001 (Aur\u00e9lien G\u00e9ron, *Hands-On Machine Learning*, p. 376).\n*   **Momentum Integration:** Adam incorporates momentum directly as an estimate of the first-order moment of the gradient using exponential weighting (*Deep Learning*, p. 324). \n*   **Scaling Updates:** Adam scales down parameter updates based on the $\\ell_2$ norm of time-decayed gradients (Aur\u00e9lien G\u00e9ron, *Hands-On Machine Learning*, p. 377). This scaling helps stabilize the optimization process.\n*   **Ease of Use:** Because of its adaptive nature, Adam is generally considered easier to use than Gradient Descent for many machine learning tasks (Aur\u00e9lien G\u00e9ron, *Hands-On Machine Learning*, p. 376).\n\nI hope this clarifies how these optimization techniques compare! Let me know if you have more questions.",
+        "citations": [
+          {
+            "book": "Aur\u00e9lien-G\u00e9ron-Hands-On-Machine-Learning-with-Scikit-Learn-Keras-and-Tensorflow_-Concepts-Tools-and-Techniques-to-Build-Intelligent-Systems-O\u2019Reilly-Media-2019.pdf",
+            "page": 377,
+            "relevance": "high",
+            "chunk_id": "aur\u00e9lien_g\u00e9ron_hands_on_machine_learning_with_scikit_learn_keras_and_tensorflow__concepts_tools_and_techniques_to_build_intelligent_systems_o\u2019reilly_media_2019_p377_c2"
+          },
+          {
+            "book": "Aur\u00e9lien-G\u00e9ron-Hands-On-Machine-Learning-with-Scikit-Learn-Keras-and-Tensorflow_-Concepts-Tools-and-Techniques-to-Build-Intelligent-Systems-O\u2019Reilly-Media-2019.pdf",
+            "page": 376,
+            "relevance": "high",
+            "chunk_id": "aur\u00e9lien_g\u00e9ron_hands_on_machine_learning_with_scikit_learn_keras_and_tensorflow__concepts_tools_and_techniques_to_build_intelligent_systems_o\u2019reilly_media_2019_p376_c2"
+          },
+          {
+            "book": "Aur\u00e9lien-G\u00e9ron-Hands-On-Machine-Learning-with-Scikit-Learn-Keras-and-Tensorflow_-Concepts-Tools-and-Techniques-to-Build-Intelligent-Systems-O\u2019Reilly-Media-2019.pdf",
+            "page": 377,
+            "relevance": "medium",
+            "chunk_id": "aur\u00e9lien_g\u00e9ron_hands_on_machine_learning_with_scikit_learn_keras_and_tensorflow__concepts_tools_and_techniques_to_build_intelligent_systems_o\u2019reilly_media_2019_p377_c0"
+          },
+          {
+            "book": "Deep Learning",
+            "page": 324,
+            "relevance": "medium",
+            "chunk_id": "deep_learning_ian_goodfellow_p324_c2"
+          },
+          {
+            "book": "Aur\u00e9lien-G\u00e9ron-Hands-On-Machine-Learning-with-Scikit-Learn-Keras-and-Tensorflow_-Concepts-Tools-and-Techniques-to-Build-Intelligent-Systems-O\u2019Reilly-Media-2019.pdf",
+            "page": 377,
+            "relevance": "medium",
+            "chunk_id": "aur\u00e9lien_g\u00e9ron_hands_on_machine_learning_with_scikit_learn_keras_and_tensorflow__concepts_tools_and_techniques_to_build_intelligent_systems_o\u2019reilly_media_2019_p377_c1"
+          }
+        ],
+        "confidence": "high",
+        "follow_up_questions": [
+          "Want a deeper mathematical view of this concept?",
+          "Should we connect this to a real model training example?",
+          "Do you want to compare this with a related method?"
+        ],
+        "chunks_used": 5,
+        "retrieval_scores": [
+          0.03200204813108039,
+          0.031544957774465976,
+          0.03128054740957967,
+          0.03125763125763126,
+          0.017336838849365915
+        ]
+      },
+      {
+        "query": "What is quantum computing?",
+        "answer": "Hmm, that one is outside what my loaded ML/DS books cover right now. Try a question about machine learning, deep learning, statistics, or model evaluation.",
+        "citations": [
+          {
+            "book": "Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf",
+            "page": 21,
+            "relevance": "high",
+            "chunk_id": "bishop_pattern_recognition_and_machine_learning_2006_p21_c1"
+          },
+          {
+            "book": "jurafsky_martin.pdf",
+            "page": 289,
+            "relevance": "high",
+            "chunk_id": "jurafsky_martin_p289_c3"
+          },
+          {
+            "book": "jurafsky_martin.pdf",
+            "page": 36,
+            "relevance": "medium",
+            "chunk_id": "jurafsky_martin_p36_c0"
+          },
+          {
+            "book": "Aur\u00e9lien-G\u00e9ron-Hands-On-Machine-Learning-with-Scikit-Learn-Keras-and-Tensorflow_-Concepts-Tools-and-Techniques-to-Build-Intelligent-Systems-O\u2019Reilly-Media-2019.pdf",
+            "page": 209,
+            "relevance": "medium",
+            "chunk_id": "aur\u00e9lien_g\u00e9ron_hands_on_machine_learning_with_scikit_learn_keras_and_tensorflow__concepts_tools_and_techniques_to_build_intelligent_systems_o\u2019reilly_media_2019_p209_c0"
+          },
+          {
+            "book": "Deep Learning",
+            "page": 70,
+            "relevance": "medium",
+            "chunk_id": "deep_learning_ian_goodfellow_p70_c2"
+          }
+        ],
+        "confidence": "low",
+        "follow_up_questions": [
+          "Do you want a quick recap of gradient descent?",
+          "Should we compare L1 and L2 regularization?",
+          "Want a simple explanation of overfitting vs underfitting?"
+        ],
+        "chunks_used": 5,
+        "retrieval_scores": [
+          0.032018442622950824,
+          0.030886196246139225,
+          0.01707242848447961,
+          0.01707242848447961,
+          0.016816412099430966
+        ]
+      }
+    ]
+  },
+  "passed": true
+}
