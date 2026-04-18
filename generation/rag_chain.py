@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import os
+import warnings
 from typing import Any
+
+# Suppress deprecation warning for google.generativeai (stable but deprecated)
+warnings.filterwarnings("ignore", category=FutureWarning, module="google.generativeai")
 
 import google.generativeai as genai
 
@@ -62,6 +66,30 @@ class RagChain:
             return True
         return float(chunks[0].get("rrf_score", 0.0)) < 0.012
 
+    def _generate_headline(self, query: str, chunks: list[dict[str, Any]]) -> str:
+        """Generate a professional headline for the answer."""
+        # Extract key terms from query
+        words = query.split()
+        important_words = [w for w in words if len(w) > 4 and w.lower() not in 
+                          ['what', 'when', 'where', 'which', 'about', 'could', 'would', 'should']]
+        
+        if important_words:
+            headline = " ".join(important_words[:3]).title()
+        else:
+            headline = query.title()
+        
+        # Add context from top chunk if available
+        if chunks:
+            try:
+                # Extract first meaningful phrase from context
+                context_text = chunks[0].get('text', '')[:100]
+                if context_text:
+                    headline = f"{headline}: {context_text.split('.')[0].title()}"
+            except:
+                pass
+        
+        return headline[:100]  # Limit headline length
+
     def _fallback_answer(self, query: str) -> str:
         return (
             "Hmm, that one is outside what my loaded ML/DS books cover right now. "
@@ -81,9 +109,11 @@ class RagChain:
         ]
 
         if self._is_out_of_scope(user_query, chunks):
+            answer_text = self._fallback_answer(user_query)
             return {
                 "query": user_query,
-                "answer": self._fallback_answer(user_query),
+                "headline": "Topic Out of Scope",
+                "answer": answer_text,
                 "citations": citations,
                 "confidence": "low",
                 "follow_up_questions": [
@@ -106,8 +136,10 @@ class RagChain:
             response = self.model.generate_content(prompt)
             answer = getattr(response, "text", "") or "No model text returned."
 
+        headline = self._generate_headline(user_query, chunks)
         return {
             "query": user_query,
+            "headline": headline,
             "answer": answer,
             "citations": citations,
             "confidence": "high" if chunks and float(chunks[0].get("rrf_score", 0.0)) >= 0.02 else "medium",

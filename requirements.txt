@@ -3,7 +3,7 @@ faiss-cpu
 rank-bm25
 google-generativeai
 fastapi
-uvicorn
+uvicorn[standard]
 streamlit
 pandas
 numpy
@@ -11,3 +11,4 @@ python-dotenv
 prometheus-client
 pytest
 httpx
+sentence-transformers

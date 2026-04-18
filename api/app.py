@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import secrets
 import sqlite3
 import time
@@ -13,11 +14,16 @@ from pathlib import Path
 from typing import Any
 from typing import cast
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, generate_latest  # type: ignore[reportMissingImports]
 from pydantic import BaseModel, Field
+
+# Load environment variables from .env file
+load_dotenv()
+
 
 from config.settings import (
     AUTH_DB_FILE,
@@ -300,10 +306,25 @@ def web_dashboard() -> FileResponse:
 
 @app.get("/health")
 def health() -> dict[str, Any]:
-    index_ready = runtime.retriever is not None and runtime.rag_chain is not None
-    chunks_loaded = runtime.retriever.vector_store.total_chunks if runtime.retriever else 0
-    INDEX_READY_GAUGE.set(1 if index_ready else 0)
-    return {"status": "ok", "chunks_loaded": chunks_loaded, "index_ready": index_ready}
+    try:
+        index_ready = runtime.retriever is not None and runtime.rag_chain is not None
+        chunks_loaded = runtime.retriever.vector_store.total_chunks if runtime.retriever else 0
+        has_api_key = bool(os.getenv("GOOGLE_API_KEY", "").strip())
+        INDEX_READY_GAUGE.set(1 if index_ready else 0)
+        return {
+            "status": "ok",
+            "chunks_loaded": chunks_loaded,
+            "index_ready": index_ready,
+            "api_key_configured": has_api_key,
+            "timestamp": _now_iso()
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "index_ready": False,
+            "timestamp": _now_iso()
+        }
 
 
 @app.get("/metrics")
