@@ -293,7 +293,7 @@ MIT License — use for research, education, and commercial projects.
 
 **A solo ML engineer & researcher** who believes AI should cite its sources.
 
-Feedback, citations, or research collaborations: [abdulahdurani2299@gmail.com]
+Feedback, citations, or research collaborations: [duraniabdulah2299@gmail.com]
 
 ─────────────────────────────────────────────────────────────────
 
