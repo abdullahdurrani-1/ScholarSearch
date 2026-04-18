@@ -153,7 +153,7 @@ ScholarSearch is pre-indexed with textbooks covering:
 
 ─────────────────────────────────────────────────────────────────
 
-## 🚀 Setup: Baby Steps
+## 🚀 Setup:
 
 ### Step 0: Verify Prerequisites
 ```bash
@@ -293,7 +293,7 @@ MIT License — use for research, education, and commercial projects.
 
 **A solo ML engineer & researcher** who believes AI should cite its sources.
 
-Feedback, citations, or research collaborations: [your-email@example.com](mailto:your-email@example.com)
+Feedback, citations, or research collaborations: [your-email@example.com](abdulahdurani2299@gmail.com)
 
 ─────────────────────────────────────────────────────────────────
 
